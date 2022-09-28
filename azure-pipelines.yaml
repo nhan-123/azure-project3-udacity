@@ -23,7 +23,6 @@ stages:
 #--------------------------------------------#  
 # BUILD STAGE
 #--------------------------------------------#    
-stages:
 - stage: Build
   jobs:
   - job: BuildInfrastructure
