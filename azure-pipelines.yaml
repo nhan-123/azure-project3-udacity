@@ -39,17 +39,17 @@ stages:
     # Run Terraform Init on the pipeline agent 
     # Run Terraform Init on the pipeline agent 
     # ToDo: Replace the resource group name, storage account name, and container name below
-    # - task: TerraformTaskV3@3
-    #   displayName: 'Terrafom init'
-    #   inputs:
-    #     provider: 'azurerm'
-    #     command: 'init'
-    #     workingDirectory: '$(System.DefaultWorkingDirectory)/terraform/environments/test'
-    #     backendServiceArm: '$(azureServiceConnectionId)'
-    #     backendAzureRmResourceGroupName: 'Azuredevops'
-    #     backendAzureRmStorageAccountName: 'storage209796'
-    #     backendAzureRmContainerName: 'mycontainer209796'
-    #     backendAzureRmKey: '7zhSNCsnR3R4Ub7mFUWcHC15dvUSw6Q8D5jihj7EiadY1IPmbUAD12EU08C4aTqgfET7RJSy9GTr+AStYw36dQ=='
+    - task: TerraformCLI@0
+      displayName: 'Terrafom init'
+      inputs:
+        provider: 'azurerm'
+        command: 'init'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/terraform/environments/test'
+        backendServiceArm: '$(azureServiceConnectionId)'
+        backendAzureRmResourceGroupName: 'Azuredevops'
+        backendAzureRmStorageAccountName: 'storage209796'
+        backendAzureRmContainerName: 'mycontainer209796'
+        backendAzureRmKey: '7zhSNCsnR3R4Ub7mFUWcHC15dvUSw6Q8D5jihj7EiadY1IPmbUAD12EU08C4aTqgfET7RJSy9GTr+AStYw36dQ=='
 
     # # Run Terraform Validate    
     # - task: TerraformTaskV3@3
