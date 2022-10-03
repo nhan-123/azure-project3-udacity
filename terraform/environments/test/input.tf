@@ -1,15 +1,15 @@
 # Azure GUIDS
 variable "subscription_id" {
     description = "Subcription id"
-    default = "a4b11da3-2642-4ae2-b8e0-ba40545a13d6" 
+    default = "481b1dfa-09f6-4305-a978-b656e03d8e84" 
 }
 variable "client_id" {
     description = "Application id"
-    default = "156047be-4ea3-4dc8-b1a1-3ffc5c1a18cc"
+    default = "7e05aadc-598c-4159-b0d7-8018fbf32ee9"
 }
 variable "client_secret" {
     description = "Secret key"
-    default = "kDw8Q~vk9q-rWMtGSlFzhPGJSE2InBDDLsDFxaX8"
+    default = "lSh8Q~jeRggBxjONJR9eHnH11wVsz0yBeV8fudtW"
 } 
 variable "tenant_id" {
     description = "Tenent id"
@@ -19,7 +19,7 @@ variable "tenant_id" {
 # Resource Group/Location
 variable "location" {
   description = "The Azure Region in which all resources in this example should be created."
-  default = "South Central US"
+  default = "East US"
 }
 
 variable "resource_group" {
