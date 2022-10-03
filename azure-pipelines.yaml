@@ -1,4 +1,4 @@
-name: Azure Pipelines
+
 
 # Start with a minimal pipeline that you can customize to build and deploy your code.
 # Add steps that build, run tests, deploy, and more:
@@ -28,10 +28,13 @@ stages:
   - job: BuildInfrastructure
     steps:
     # Install Terraform on the pipeline agent 
-    - task: charleszipp.azure-pipelines-tasks-terraform.azure-pipelines-tasks-terraform-installer.TerraformInstaller@0
-      displayName: install terraform
+    # - task: charleszipp.azure-pipelines-tasks-terraform.azure-pipelines-tasks-terraform-installer.TerraformInstaller@0
+    #   displayName: install terraform
+    #   inputs:
+    #     terraformVersion: latest
+    - task: TerraformInstaller@0
       inputs:
-        terraformVersion: latest
+        terraformVersion: 'latest'
     
     # Run Terraform Init on the pipeline agent 
     # Run Terraform Init on the pipeline agent 
