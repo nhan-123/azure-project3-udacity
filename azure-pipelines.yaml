@@ -52,32 +52,32 @@ stages:
         backendAzureRmKey: '7zhSNCsnR3R4Ub7mFUWcHC15dvUSw6Q8D5jihj7EiadY1IPmbUAD12EU08C4aTqgfET7RJSy9GTr+AStYw36dQ=='
 
     # # Run Terraform Validate    
-    # - task: TerraformTaskV3@3
-    #   displayName: Terraform validate
-    #   inputs:
-    #     provider: 'azurerm'
-    #     command: 'validate'
+    - task: TerraformCLI@0
+      displayName: Terraform validate
+      inputs:
+        provider: 'azurerm'
+        command: 'validate'
 
     
     # # Run Terraform Apply
     # #ToDo: Change the workingDirectory path, as applicable to you
-    # - task: TerraformTaskV3@3
-    #   displayName: Terraform apply
-    #   inputs:
-    #     provider: 'azurerm'
-    #     command: 'apply'
-    #     workingDirectory: '$(System.DefaultWorkingDirectory)/terraform/environments/test'
-    #     environmentServiceNameAzureRM: '$(azureServiceConnectionId)'
+    - task: TerraformCLI@0
+      displayName: Terraform apply
+      inputs:
+        provider: 'azurerm'
+        command: 'apply'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/terraform/environments/test'
+        environmentServiceNameAzureRM: '$(azureServiceConnectionId)'
 
     # # Destroy the resources in Azure
     # #ToDo: Change the workingDirectory path, as applicable to you
-    # - task: TerraformTaskV3@3
-    #   displayName: Terraform destroy
-    #   inputs:
-    #     provider: 'azurerm'
-    #     command: 'destroy'
-    #     workingDirectory: '$(System.DefaultWorkingDirectory)/terraform/environments/test'
-    #     environmentServiceNameAzureRM: '$(azureServiceConnectionId)'    
+    - task: TerraformCLI@0
+      displayName: Terraform destroy
+      inputs:
+        provider: 'azurerm'
+        command: 'destroy'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/terraform/environments/test'
+        environmentServiceNameAzureRM: '$(azureServiceConnectionId)'    
 
 # #--------------------------------------------#    
 #     # Postman - Install Newman    
