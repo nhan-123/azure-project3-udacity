@@ -21,6 +21,7 @@ variables:
   webAppName: 'Webapp1-AppService'
 
 stages:
+
 #--------------------------------------------#  
 # BUILD STAGE
 #--------------------------------------------#    

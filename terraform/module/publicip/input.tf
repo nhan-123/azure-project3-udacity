@@ -12,7 +12,7 @@ variable "resource_group" {
 
 variable "application_type" {
   description = "Application type"
-  default = "Webapp"
+  default = "Webapp1"
 }
 
 variable "resource_type" {
