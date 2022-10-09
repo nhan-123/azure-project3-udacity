@@ -225,8 +225,8 @@ stages:
             inputs:
               targetType: 'inline'
               script: |
-                # python3.7 /home/myagent/myagent/_work/1/selenium/login.py > /home/myagent/myagent/_work/1/selenium/seleniumtestrun.log
-                sudo python3 /home/myagent/myagent/_work/1/selenium/login.py > seleniumtestrun.log
-                sudo cp /home/myagent/myagent/_work/1/selenium/seleniumtestrun.log /var/log
+                # python3.7 /home/devopsagent/myagent/_work/1/selenium/login.py > /home/devopsagent/myagent/_work/1/selenium/seleniumtestrun.log
+                sudo python3 /home/devopsagent/myagent/_work/1/selenium/login.py > seleniumtestrun.log
+                sudo cp /home/devopsagent/myagent/_work/1/selenium/seleniumtestrun.log /var/log
                 echo "copy log ---------------------------"
                 sudo cat /var/log/seleniumtestrun.log
