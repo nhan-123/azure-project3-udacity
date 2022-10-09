@@ -61,11 +61,11 @@ stages:
 
           ######### Step 2: Initialise workspace using terraform init ##########
             
-            - task: TerraformCLI@0
-              inputs:
-                command: 'plan'
-                workingDirectory: '$(System.DefaultWorkingDirectory)/terraform'
-                allowTelemetryCollection: true
+            # - task: TerraformCLI@0
+            #   inputs:
+            #     command: 'plan'
+            #     workingDirectory: '$(System.DefaultWorkingDirectory)/terraform'
+            #     allowTelemetryCollection: true
 
             ######### Step 3: Deploy Webapp terraform apply ##########
             - task: Bash@3
