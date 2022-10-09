@@ -13,7 +13,7 @@
 
 # variable "application_type" {
 #   description = "Application type"
-#   default = "Webapp1"
+#   default = "Webappk"
 # }
 
 # # Network

@@ -17,7 +17,7 @@ variable address_space {
 }
 variable "application_type" {
   description = "Application type"
-  default = "Webapp1"
+  default = "Webappk"
 }
 
 variable "resource_type" {

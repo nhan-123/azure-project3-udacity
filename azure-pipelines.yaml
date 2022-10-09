@@ -18,58 +18,58 @@ variables:
   projectRoot: $(System.DefaultWorkingDirectory)
   # Environment name
   environmentName: 'test'
-  webAppName: 'Webapp1-AppService'
+  webAppName: 'Webappk-AppService'
 
 stages:
 
 #--------------------------------------------#  
 # BUILD STAGE
 #--------------------------------------------#    
-- stage: Build
-  jobs:
-  - job: BuildInfrastructure
-    steps:
-    # Install Terraform on the pipeline agent 
-    # - task: charleszipp.azure-pipelines-tasks-terraform.azure-pipelines-tasks-terraform-installer.TerraformInstaller@0
-    #   displayName: install terraform
-    #   inputs:
-    #     terraformVersion: latest
-    - task: TerraformInstaller@0
-      inputs:
-        terraformVersion: 'latest'
+# - stage: Build
+#   jobs:
+#   - job: BuildInfrastructure
+#     steps:
+#     # Install Terraform on the pipeline agent 
+#     # - task: charleszipp.azure-pipelines-tasks-terraform.azure-pipelines-tasks-terraform-installer.TerraformInstaller@0
+#     #   displayName: install terraform
+#     #   inputs:
+#     #     terraformVersion: latest
+#     - task: TerraformInstaller@0
+#       inputs:
+#         terraformVersion: 'latest'
     
-    # Run Terraform Init on the pipeline agent 
-    # Run Terraform Init on the pipeline agent 
-    # ToDo: Replace the resource group name, storage account name, and container name below
-    - task: TerraformCLI@0
-      displayName: 'Terrafom init'
-      inputs:
-        provider: 'azurerm'
-        command: 'init'
-        workingDirectory: '$(System.DefaultWorkingDirectory)/terraform/environments/test'
-        backendServiceArm: '$(azureServiceConnectionId)'
-        backendAzureRmResourceGroupName: 'Azuredevops'
-        backendAzureRmStorageAccountName: 'storage209796'
-        backendAzureRmContainerName: 'mycontainer209796'
-        backendAzureRmKey: '+BGYC5BeG0HAHeOsf5JNUcJuD51hZBIx7AJzqqOMfEL7aEGVeQp8YkD0wOa5oXaH77ef0bM97DU4+AStF/YjJw=='
+#     # Run Terraform Init on the pipeline agent 
+#     # Run Terraform Init on the pipeline agent 
+#     # ToDo: Replace the resource group name, storage account name, and container name below
+#     - task: TerraformCLI@0
+#       displayName: 'Terrafom init'
+#       inputs:
+#         provider: 'azurerm'
+#         command: 'init'
+#         workingDirectory: '$(System.DefaultWorkingDirectory)/terraform/environments/test'
+#         backendServiceArm: '$(azureServiceConnectionId)'
+#         backendAzureRmResourceGroupName: 'Azuredevops'
+#         backendAzureRmStorageAccountName: 'storage209796'
+#         backendAzureRmContainerName: 'mycontainer209796'
+#         backendAzureRmKey: '+BGYC5BeG0HAHeOsf5JNUcJuD51hZBIx7AJzqqOMfEL7aEGVeQp8YkD0wOa5oXaH77ef0bM97DU4+AStF/YjJw=='
 
-    # # # Run Terraform Validate    
-    - task: TerraformCLI@0
-      displayName: Terraform validate
-      inputs:
-        provider: 'azurerm'
-        command: 'validate'
+#     # # # Run Terraform Validate    
+#     - task: TerraformCLI@0
+#       displayName: Terraform validate
+#       inputs:
+#         provider: 'azurerm'
+#         command: 'validate'
 
     
-    # # Run Terraform Apply
-    # #ToDo: Change the workingDirectory path, as applicable to you
-    - task: TerraformCLI@0
-      displayName: Terraform apply
-      inputs:
-        provider: 'azurerm'
-        command: 'apply'
-        workingDirectory: '$(System.DefaultWorkingDirectory)/terraform/environments/test'
-        environmentServiceNameAzureRM: '$(azureServiceConnectionId)'
+#     # # Run Terraform Apply
+#     # #ToDo: Change the workingDirectory path, as applicable to you
+#     - task: TerraformCLI@0
+#       displayName: Terraform apply
+#       inputs:
+#         provider: 'azurerm'
+#         command: 'apply'
+#         workingDirectory: '$(System.DefaultWorkingDirectory)/terraform/environments/test'
+#         environmentServiceNameAzureRM: '$(azureServiceConnectionId)'
 
     # Destroy the resources in Azure
     #ToDo: Change the workingDirectory path, as applicable to you
@@ -81,147 +81,34 @@ stages:
     #     workingDirectory: '$(System.DefaultWorkingDirectory)/terraform/environments/test'
     #     environmentServiceNameAzureRM: '$(azureServiceConnectionId)'    
 
-- stage: BuildFakeRestAPI
-  jobs:
-  - job: 'BuildFakeapp'
-    displayName: 'Build Fake app Rest API'
-    pool:
-      name: myAgentPool
-      vmImage: 'ubuntu-18.04'
-    steps:
-    - task: ArchiveFiles@2
-      displayName: 'Archive FakeRestAPI'
-      inputs:
-        rootFolderOrFile: '$(System.DefaultWorkingDirectory)/automatedtesting/fakerestapi'
-        includeRootFolder: false
-        archiveType: 'zip'
-        archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId)-fakerestapi.zip'
-    - publish: $(Build.ArtifactStagingDirectory)/$(Build.BuildId)-fakerestapi.zip
-      displayName: 'Upload Package'
-      artifact: fakerestapi
-
-- stage: DeployFakeApp
-  dependsOn: BuildFakeRestAPI
-  condition: succeeded()
-  jobs:
-  - deployment: FakeRestAPI
-    pool:
-      vmImage: 'Ubuntu-16.04'
-      name: myAgentPool
-    environment: 'DEV'
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-          - task: AzureWebApp@1
-            displayName: 'Deploy Azure Web App'
-            inputs:
-              azureSubscription: $(azureServiceConnectionId) 
-              appName: $(webAppName)
-              appType: Webapp1
-              package: $(Pipeline.Workspace)/fakerestapi/$(Build.BuildId)-fakerestapi.zip
-#--------------------------------------------#    
-    # # Postman - Install Newman    
-    # # ToDo: Update the command and verify the working directory
-    # - task: CmdLine@2
-    #   displayName: Install Newman
-    #   inputs:
-    #   # ToDo: Write your commands to install newman
-    #     script: |
-    #       sudo apt install nodejs npm -y
-    #       nodejs --version
-    #       npm install -g newman
-    #       cd $(Pipeline.Workspace)/postman
-    #       unzip -o $(Pipeline.Workspace)/postman/$(Build.BuildId)-postman-tests -d .        
-    #     workingDirectory: $(System.DefaultWorkingDirectory)
-    # # Postman Data Validation Test Suite    
-    # # ToDo: Verify the working directory and the newman scripts
-    # - task: CmdLine@2
-    #   displayName: Run Data Validation Tests
-    #   continueOnError: true
-    #   inputs:
-    #     script: |
-    #       newman run /home/myagent/myagent/_work/1/postman/P3_Validation_Tests.postman_collection.json \
-    #                 -e /home/myagent/myagent/_work/1/postman/P3_Validation_Tests_Environment.postman_environment.json \
-    #                 --reporters cli,junit \
-    #                 --reporter-junit-export log/newman/validationTestReport.xml \
-    #                 --suppress-exit-code
-    #     workingDirectory: '$(System.DefaultWorkingDirectory)/automatedtesting/postman'
-    # # Postman Regression Test Suite    
-    # # ToDo: Update the command and verify the working directory
-    # - task: CmdLine@2
-    #   displayName: Run Regression Tests
-    #   continueOnError: true
-    #   inputs:
-    #     script:           # ToDo: Write your commands
-    #     workingDirectory: '$(System.DefaultWorkingDirectory)/automatedtesting/postman'
-    # # Postman - Publish Results 
-    # # ToDo: Complete the task as explained here: https://learn.microsoft.com/en-us/azure/devops/pipelines/tasks/test/publish-test-results?view=azure-devops&tabs=trx%2Cyaml#yaml-snippet
-    # - task: PublishTestResults@2
-    #   inputs:
-    #     testResultsFormat: 'JUnit'
-    #     testResultsFiles: '**/TEST-*.xml'
-    #     searchFolder:       # ToDo
-    #     mergeTestResults: true
-    #     testRunTitle:       # ToDo
-
-#     #--------------------------------------------#
-#     # Selenium (UI) Test Suite - Archive the package  
-#     # "ArchiveFiles@2" picks up the web package and archives it.
-#     - task: ArchiveFiles@2
-#       displayName: 'Archive UI Tests'
-#       inputs:
-#         rootFolderOrFile: '$(System.DefaultWorkingDirectory)/automatedtesting/selenium'
-#         includeRootFolder: false
-#         archiveType: 'zip'
-#         archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId)-uitests.zip'
-#     # Selenium Test Suite - Publish the package  
-#     - publish: $(Build.ArtifactStagingDirectory)/$(Build.BuildId)-uitests.zip   # Same as the archiveFile artifact above. 
-#       displayName: 'Upload Package'
-#       artifact: drop-uitests
-
-#     #--------------------------------------------#    
-#     # FakeRestAPI - Archive
-#     # ToDo: Complete the ArchiveFiles@2 task and publish step 
+# - stage: BuildFakeRestAPI
+#   jobs:
+#   - job: 'BuildFakeapp'
+#     displayName: 'Build Fake app Rest API'
+#     pool:
+#       name: myAgentPool
+#       vmImage: 'ubuntu-18.04'
+#     steps:
 #     - task: ArchiveFiles@2
 #       displayName: 'Archive FakeRestAPI'
 #       inputs:
-#         rootFolderOrFile: 
-#         includeRootFolder:
-#         archiveType: 
-#         archiveFile: 
-#     # FakeRestAPI - Publish    
-#     - publish: 
-#       displayName: 
-#       artifact: 
+#         rootFolderOrFile: '$(System.DefaultWorkingDirectory)/automatedtesting/fakerestapi'
+#         includeRootFolder: false
+#         archiveType: 'zip'
+#         archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId)-fakerestapi.zip'
+#     - publish: $(Build.ArtifactStagingDirectory)/$(Build.BuildId)-fakerestapi.zip
+#       displayName: 'Upload Package'
+#       artifact: fakerestapi
 
-#     #--------------------------------------------#  
-#     # JMeter (Performance) Test Suite - Archive
-#     # ToDo: Complete the ArchiveFiles@2 task and publish step 
-#     - task: ArchiveFiles@2
-#       displayName: 'Archive PerformanceTestSuite'
-#       inputs:
-#         rootFolderOrFile: 
-#         includeRootFolder:
-#         archiveType: 
-#         archiveFile: 
-#     # JMeter Test Suite - Publish    
-#     - publish: 
-#       displayName: 
-#       artifact: 
-
-# #--------------------------------------------#  
-# # DEPLOYMENT STAGE
-# #--------------------------------------------#    
-# - stage: Deploy
+# - stage: DeployFakeApp
+#   dependsOn: BuildFakeRestAPI
+#   condition: succeeded()
 #   jobs:
-#   #--------------------------------------------#  
-#   # Deploy FakeRestAPI Web App
-#   # ToDo: Provide <environment name> you created in your DevOps project
 #   - deployment: FakeRestAPI
 #     pool:
-#       vmImage: 'Ubuntu-18.04'      
-#     environment: <environment name>   # ToDo
+#       vmImage: 'Ubuntu-16.04'
+#       name: myAgentPool
+#     environment: 'DEV'
 #     strategy:
 #       runOnce:
 #         deploy:
@@ -229,52 +116,117 @@ stages:
 #           - task: AzureWebApp@1
 #             displayName: 'Deploy Azure Web App'
 #             inputs:
-#               azureSubscription:      # ToDo
-#               appName:                # ToDo
-#               appType: webApp
-#               package: $(Pipeline.Workspace)/<artifact>/<archiveFile>       # ToDo: Use the published zip artifact. 
-#           #--------------------------------------------#    
-#           # Run JMeter test suite against the App Service
-#           # ToDo: Update the script below to install jmeter, unzip the jmeter test suite published zip artifact, and run the PerformanceTestSuite.  
-#           # ToDo: Generate the log file. 
-#           - task: CmdLine@2
-#             inputs:
-#               script: |
-#                                                                             # ToDo: Write your commands
-#               workingDirectory: $(Pipeline.Workspace)/<artifact>            # ToDo: Use the artifact name from the task above
-              
-#   #--------------------------------------------#  
-#   # Selenium | Functional UI Tests
-#   # ToDo: 
-#   - deployment: VMDeploy
-#     displayName: Selenium Tests
-#     environment:
-#       name:         # ToDo: Change/provide a name
-#       resourceType: VirtualMachine
-#       tags: selenium
-#     strategy:
-#       runOnce:
-#         deploy:
-#           steps:
-#           - download: current
-#             artifact: drop-ui-tests     # ToDo: Change/provide a name
-            
-#           - task: Bash@3
-#             inputs:
-#               targetType: 'inline'
-#               script: |           
-#                 # ToDo: Install Selenium, Chromium-browser & Chromedriver, if not already in the custom VM image. 
-#                 #! /bin/bash
+#               azureSubscription: $(azureServiceConnectionId) 
+#               appName: $(webAppName)
+#               appType: Webappk
+#               package: $(Pipeline.Workspace)/fakerestapi/$(Build.BuildId)-fakerestapi.zip
+
+
+####################################################################
+#                       Build Test   zip                           #
+####################################################################
+- stage: Build
+  jobs:
+  - job: Build
+    pool:
+      vmImage: 'ubuntu-latest'
+      name: 'myAgentPool'
+    steps:
+    - task: ArchiveFiles@2
+      displayName: 'Archive Selenium tests'
+      inputs:
+        rootFolderOrFile: '$(System.DefaultWorkingDirectory)/automatedtesting/selenium'
+        includeRootFolder: false
+        archiveType: 'zip'
+        archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId)-selenium-tests.zip'
+    - publish: $(Build.ArtifactStagingDirectory)/$(Build.BuildId)-selenium-tests.zip
+      displayName: 'Upload Selenium Tests'
+      artifact: selenium
+
+    # - task: ArchiveFiles@2
+    #   displayName: 'Archive Postman tests'
+    #   inputs:
+    #     rootFolderOrFile: '$(System.DefaultWorkingDirectory)/automatedtesting/postman'
+    #     includeRootFolder: false
+    #     archiveType: 'zip'
+    #     archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId)-postman-tests.zip'
+    # - publish: $(Build.ArtifactStagingDirectory)/$(Build.BuildId)-postman-tests.zip
+    #   displayName: 'Upload Postman Tests'
+    #   artifact: postman
+
+    # - task: ArchiveFiles@2
+    #   displayName: 'Archive Jmeter tests'
+    #   inputs:
+    #     rootFolderOrFile: '$(System.DefaultWorkingDirectory)/automatedtesting/jmeter'
+    #     includeRootFolder: false
+    #     archiveType: 'zip'
+    #     archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId)-jmeter-tests.zip'
+    # - publish: $(Build.ArtifactStagingDirectory)/$(Build.BuildId)-jmeter-tests.zip
+    #   displayName: 'Upload JMeter Tests'
+    #   artifact: jmeter
+
+####################################################################
+#                            Run Test                              #
+####################################################################
+- stage: RunTests     
+  jobs:
+  - deployment: UITests
+    displayName: 'UI Tests'
+    pool:
+      vmImage: 'ubuntu-18.04'
+      name: myAgentPool
+    environment:  'TEST'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          # - download: current
+          #   displayName: Download selenium
+          #   artifact: selenium 
+          ####################################################################
+          #                       Selenium Test                              #
+          ####################################################################
+          - task: Bash@3
+            displayName: 'Install Selenium'
+            inputs:
+              targetType: 'inline'
+              script: |
+                #! /bin/bash
                 
-#                 sudo apt-get upgrade -y
-#                 sudo apt-get install python3-pip -y
-#                 sudo apt-get install unzip -y
-#                 sudo apt-get install -y chromium-browser
-#                 pip3 install selenium
-                
-#                 #  ToDo: Add chromedriver executable to path
-#                 export PATH=$PATH:/path/to/chromedriver     
-                
-#                 # ToDo: Write commands for deploying the UI Test Suite (published zip artifact) to the linux VM and execute the Test Suite
-#                 # ToDo: Direct the output of the Selenium Test Suite to a log file
-                
+                sudo apt-get update -y
+                sudo apt-get install python3-pip -y
+                sudo apt-get install -y chromium-browser
+                sudo apt-get install -y chromium-chromedriver
+                sudo python3 -m pip install --upgrade pip
+                sudo pip3 install selenium==3.141.0
+
+                selenium==3.141.0
+                sudo pip3 install 
+                export PATH=$PATH:/usr/lib/chromium-browser/
+                cd $(Pipeline.Workspace)/selenium
+                unzip -o $(Pipeline.Workspace)/selenium/$(Build.BuildId)-selenium-tests -d .
+          - bash: |
+              cd $(Pipeline.Workspace)/s/automatedtesting/selenium
+              rm -rf seleniumtestrun.log
+              pwd
+              python3 login.py
+              ls -lah
+              # python3 publishlog.py selenium-result.log $(LOG-WORKSPACE) $(LOG-KEY) > publish.log 
+              sudo cat seleniumtestrun.log
+              sudo cp seleniumtestrun.log /var/log/selenium
+            displayName: Run Selenium Test-Suite
+          - task: PublishPipelineArtifact@1
+            displayName: Publish Selenium Result logs
+            inputs:
+              targetPath: '$(Pipeline.Workspace)/selenium/selenium-result.log'
+              artifactName: 'SeleniumTestResult'
+          - task: Bash@3
+            displayName: 'Run Selenium Tests'
+            inputs:
+              targetType: 'inline'
+              script: |
+                # python3.7 /home/myagent/myagent/_work/1/selenium/login.py > /home/myagent/myagent/_work/1/selenium/seleniumtestrun.log
+                sudo python3 /home/myagent/myagent/_work/1/selenium/login.py > seleniumtestrun.log
+                sudo cp /home/myagent/myagent/_work/1/selenium/seleniumtestrun.log /var/log
+                echo "copy log ---------------------------"
+                sudo cat /var/log/seleniumtestrun.log

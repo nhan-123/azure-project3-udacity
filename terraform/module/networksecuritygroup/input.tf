@@ -11,7 +11,7 @@ variable "resource_group" {
 
 variable "application_type" {
   description = "Application type"
-  default = "Webapp1"
+  default = "Webappk"
 }
 
 variable "resource_type" {
