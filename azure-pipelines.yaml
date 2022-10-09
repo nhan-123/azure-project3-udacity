@@ -99,7 +99,7 @@ stages:
       displayName: 'Upload Package'
       artifact: fakerestapi
 
- - stage: DeployFakeApp
+- stage: DeployFakeApp
   dependsOn: BuildFakeRestAPI
   condition: succeeded()
   jobs:
