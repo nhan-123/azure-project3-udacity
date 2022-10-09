@@ -24,169 +24,63 @@ stages:
 #----------------------------------------
 #pipline cua Minh
 #-----------------------------------------
-- stage: Prepare
-  displayName: Prepare environment 
-  jobs: 
-  - deployment: deploy_terraform
-    continueOnError: false
-    environment: 'TEST'
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-            - checkout: self
+# - stage: Prepare
+#   displayName: Prepare environment 
+#   jobs: 
+#   - deployment: deploy_terraform
+#     continueOnError: false
+#     environment: 'TEST'
+#     strategy:
+#       runOnce:
+#         deploy:
+#           steps:
+#             - checkout: self
 
-            ######### Step 1: Install Terraform ##########
-            - task: Bash@3
-              displayName: install zip
-              inputs:
-                targetType: 'inline'
-                script: |
-                  # Write your commands here
-                  sudo apt-get -y install zip
+#             ######### Step 1: Install Terraform ##########
+#             - task: Bash@3
+#               displayName: install zip
+#               inputs:
+#                 targetType: 'inline'
+#                 script: |
+#                   # Write your commands here
+#                   sudo apt-get -y install zip
 
-            - task: charleszipp.azure-pipelines-tasks-terraform.azure-pipelines-tasks-terraform-installer.TerraformInstaller@0
-              displayName: install terraform
-              inputs:
-                terraformVersion: latest   
+#             - task: charleszipp.azure-pipelines-tasks-terraform.azure-pipelines-tasks-terraform-installer.TerraformInstaller@0
+#               displayName: install terraform
+#               inputs:
+#                 terraformVersion: latest   
 
-            - task: Bash@3
-              displayName: init terraform
-              inputs:
-                targetType: 'inline'
-                script: |
-                  # Write your commands here
-                  cd terraform
-                  terraform init
+#             - task: Bash@3
+#               displayName: init terraform
+#               inputs:
+#                 targetType: 'inline'
+#                 script: |
+#                   # Write your commands here
+#                   cd terraform
+#                   terraform init
 
-          ######### Step 2: Initialise workspace using terraform init ##########
+#           ######### Step 2: Initialise workspace using terraform init ##########
             
-            # - task: TerraformCLI@0
-            #   inputs:
-            #     command: 'plan'
-            #     workingDirectory: '$(System.DefaultWorkingDirectory)/terraform'
-            #     allowTelemetryCollection: true
+#             # - task: TerraformCLI@0
+#             #   inputs:
+#             #     command: 'plan'
+#             #     workingDirectory: '$(System.DefaultWorkingDirectory)/terraform'
+#             #     allowTelemetryCollection: true
 
-            ######### Step 3: Deploy Webapp terraform apply ##########
-            - task: Bash@3
-              displayName: apply terraform
-              inputs:
-                targetType: 'inline'
-                script: |
-                  # Write your commands here
-                  cd terraform
-                  terraform apply -auto-approve
-
-
-# ####################################################################
-# #                       Build Fake App                             #
-# ####################################################################
-
-- stage: BuildFakeRestAPI
-  jobs:
-  - job: 'BuildFakeapp'
-    displayName: 'Build Fake app Rest API'
-    pool:
-      name: myAgentPool
-      vmImage: 'ubuntu-18.04'
-    steps:
-    - task: ArchiveFiles@2
-      displayName: 'Archive FakeRestAPI'
-      inputs:
-        rootFolderOrFile: '$(System.DefaultWorkingDirectory)/automatedtesting/fakerestapi'
-        includeRootFolder: false
-        archiveType: 'zip'
-        archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId)-fakerestapi.zip'
-    - publish: $(Build.ArtifactStagingDirectory)/$(Build.BuildId)-fakerestapi.zip
-      displayName: 'Upload Package'
-      artifact: fakerestapi
-
-# ####################################################################
-# #                       Deploy Fake App                            #
-# ####################################################################
-- stage: DeployFakeApp
-  dependsOn: BuildFakeRestAPI
-  condition: succeeded()
-  jobs:
-  - deployment: FakeRestAPI
-    pool:
-      vmImage: 'Ubuntu-16.04'
-      name: myAgentPool
-    environment: 'DEV'
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-          - task: AzureWebApp@1
-            displayName: 'Deploy Azure Web App'
-            inputs:
-              azureSubscription: $(azureServiceConnectionId)
-              appName: $(webAppName)
-              appType: webApp
-              package: $(Pipeline.Workspace)/fakerestapi/$(Build.BuildId)-fakerestapi.zip
-#----------------------------------------
-#pipline cua Minh
-#-----------------------------------------
+#             ######### Step 3: Deploy Webapp terraform apply ##########
+#             - task: Bash@3
+#               displayName: apply terraform
+#               inputs:
+#                 targetType: 'inline'
+#                 script: |
+#                   # Write your commands here
+#                   cd terraform
+#                   terraform apply -auto-approve
 
 
-#--------------------------------------------#  
-# BUILD STAGE
-#--------------------------------------------#    
-# - stage: Build
-#   jobs:
-#   - job: BuildInfrastructure
-#     steps:
-#     # Install Terraform on the pipeline agent 
-#     # - task: charleszipp.azure-pipelines-tasks-terraform.azure-pipelines-tasks-terraform-installer.TerraformInstaller@0
-#     #   displayName: install terraform
-#     #   inputs:
-#     #     terraformVersion: latest
-#     - task: TerraformInstaller@0
-#       inputs:
-#         terraformVersion: 'latest'
-    
-#     # Run Terraform Init on the pipeline agent 
-#     # Run Terraform Init on the pipeline agent 
-#     # ToDo: Replace the resource group name, storage account name, and container name below
-#     - task: TerraformCLI@0
-#       displayName: 'Terrafom init'
-#       inputs:
-#         provider: 'azurerm'
-#         command: 'init'
-#         workingDirectory: '$(System.DefaultWorkingDirectory)/terraform/environments/test'
-#         backendServiceArm: '$(azureServiceConnectionId)'
-#         backendAzureRmResourceGroupName: 'Azuredevops'
-#         backendAzureRmStorageAccountName: 'storage209796'
-#         backendAzureRmContainerName: 'mycontainer209796'
-#         backendAzureRmKey: '7zhSNCsnR3R4Ub7mFUWcHC15dvUSw6Q8D5jihj7EiadY1IPmbUAD12EU08C4aTqgfET7RJSy9GTr+AStYw36dQ=='
-
-#     # # # Run Terraform Validate    
-#     - task: TerraformCLI@0
-#       displayName: Terraform validate
-#       inputs:
-#         provider: 'azurerm'
-#         command: 'validate'
-
-    
-#     # # Run Terraform Apply
-#     # #ToDo: Change the workingDirectory path, as applicable to you
-#     - task: TerraformCLI@0
-#       displayName: Terraform apply
-#       inputs:
-#         provider: 'azurerm'
-#         command: 'apply'
-#         workingDirectory: '$(System.DefaultWorkingDirectory)/terraform/environments/test'
-#         environmentServiceNameAzureRM: '$(azureServiceConnectionId)'
-
-#     # Destroy the resources in Azure
-#     #ToDo: Change the workingDirectory path, as applicable to you
-#     # - task: TerraformCLI@0
-#     #   displayName: Terraform destroy
-#     #   inputs:
-#     #     provider: 'azurerm'
-#     #     command: 'destroy'
-#     #     workingDirectory: '$(System.DefaultWorkingDirectory)/terraform/environments/test'
-#     #     environmentServiceNameAzureRM: '$(azureServiceConnectionId)'    
+# # ####################################################################
+# # #                       Build Fake App                             #
+# # ####################################################################
 
 # - stage: BuildFakeRestAPI
 #   jobs:
@@ -207,6 +101,9 @@ stages:
 #       displayName: 'Upload Package'
 #       artifact: fakerestapi
 
+# # ####################################################################
+# # #                       Deploy Fake App                            #
+# # ####################################################################
 # - stage: DeployFakeApp
 #   dependsOn: BuildFakeRestAPI
 #   condition: succeeded()
@@ -223,10 +120,113 @@ stages:
 #           - task: AzureWebApp@1
 #             displayName: 'Deploy Azure Web App'
 #             inputs:
-#               azureSubscription: $(azureServiceConnectionId) 
+#               azureSubscription: $(azureServiceConnectionId)
 #               appName: $(webAppName)
-#               appType: Webapp1
+#               appType: webApp
 #               package: $(Pipeline.Workspace)/fakerestapi/$(Build.BuildId)-fakerestapi.zip
+#----------------------------------------
+#pipline cua Minh
+#-----------------------------------------
+
+
+#--------------------------------------------#  
+# BUILD STAGE
+#--------------------------------------------#    
+- stage: Build
+  jobs:
+  - job: BuildInfrastructure
+    steps:
+    # Install Terraform on the pipeline agent 
+    # - task: charleszipp.azure-pipelines-tasks-terraform.azure-pipelines-tasks-terraform-installer.TerraformInstaller@0
+    #   displayName: install terraform
+    #   inputs:
+    #     terraformVersion: latest
+    - task: TerraformInstaller@0
+      inputs:
+        terraformVersion: 'latest'
+    
+    # Run Terraform Init on the pipeline agent 
+    # Run Terraform Init on the pipeline agent 
+    # ToDo: Replace the resource group name, storage account name, and container name below
+    - task: TerraformCLI@0
+      displayName: 'Terrafom init'
+      inputs:
+        provider: 'azurerm'
+        command: 'init'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/terraform/environments/test'
+        backendServiceArm: '$(azureServiceConnectionId)'
+        backendAzureRmResourceGroupName: 'Azuredevops'
+        backendAzureRmStorageAccountName: 'storage209796'
+        backendAzureRmContainerName: 'mycontainer209796'
+        backendAzureRmKey: '7zhSNCsnR3R4Ub7mFUWcHC15dvUSw6Q8D5jihj7EiadY1IPmbUAD12EU08C4aTqgfET7RJSy9GTr+AStYw36dQ=='
+
+    # # # Run Terraform Validate    
+    - task: TerraformCLI@0
+      displayName: Terraform validate
+      inputs:
+        provider: 'azurerm'
+        command: 'validate'
+
+    
+    # # Run Terraform Apply
+    # #ToDo: Change the workingDirectory path, as applicable to you
+    - task: TerraformCLI@0
+      displayName: Terraform apply
+      inputs:
+        provider: 'azurerm'
+        command: 'apply'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/terraform/environments/test'
+        environmentServiceNameAzureRM: '$(azureServiceConnectionId)'
+
+    # Destroy the resources in Azure
+    #ToDo: Change the workingDirectory path, as applicable to you
+    # - task: TerraformCLI@0
+    #   displayName: Terraform destroy
+    #   inputs:
+    #     provider: 'azurerm'
+    #     command: 'destroy'
+    #     workingDirectory: '$(System.DefaultWorkingDirectory)/terraform/environments/test'
+    #     environmentServiceNameAzureRM: '$(azureServiceConnectionId)'    
+
+- stage: BuildFakeRestAPI
+  jobs:
+  - job: 'BuildFakeapp'
+    displayName: 'Build Fake app Rest API'
+    pool:
+      name: myAgentPool
+      vmImage: 'ubuntu-18.04'
+    steps:
+    - task: ArchiveFiles@2
+      displayName: 'Archive FakeRestAPI'
+      inputs:
+        rootFolderOrFile: '$(System.DefaultWorkingDirectory)/automatedtesting/fakerestapi'
+        includeRootFolder: false
+        archiveType: 'zip'
+        archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId)-fakerestapi.zip'
+    - publish: $(Build.ArtifactStagingDirectory)/$(Build.BuildId)-fakerestapi.zip
+      displayName: 'Upload Package'
+      artifact: fakerestapi
+
+- stage: DeployFakeApp
+  dependsOn: BuildFakeRestAPI
+  condition: succeeded()
+  jobs:
+  - deployment: FakeRestAPI
+    pool:
+      vmImage: 'Ubuntu-16.04'
+      name: myAgentPool
+    environment: 'DEV'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: AzureWebApp@1
+            displayName: 'Deploy Azure Web App'
+            inputs:
+              azureSubscription: $(azureServiceConnectionId) 
+              appName: $(webAppName)
+              appType: Webapp1
+              package: $(Pipeline.Workspace)/fakerestapi/$(Build.BuildId)-fakerestapi.zip
 #--------------------------------------------#    
     # # Postman - Install Newman    
     # # ToDo: Update the command and verify the working directory
