@@ -237,32 +237,32 @@ stages:
                 cd $(Pipeline.Workspace)/postman
                 unzip -o $(Pipeline.Workspace)/postman/$(Build.BuildId)-postman-tests -d .
           - bash: |
-              newman run /home/devopsagent/myagent/_work/1/postman/Validation_Tests.postman_collection.json \
-                        -e /home/devopsagent/myagent/_work/1/postman/Validation_Tests_Environment.postman_environment.json \
+              newman run /home/devopsagent/myagent/_work/2/postman/Validation_Tests.postman_collection.json \
+                        -e /home/devopsagent/myagent/_work/2/postman/Validation_Tests_Environment.postman_environment.json \
                         --reporters cli,junit \
                         --reporter-junit-export log/newman/validationTestReport.xml \
                         --suppress-exit-code
             displayName: Validation Test (http://dummy.restapiexample.com)
 
           - bash: |
-              newman run /home/devopsagent/myagent/_work/1/postman/Regression_Tests.postman_collection.json \
-                     -e /home/devopsagent/myagent/_work/1/postman/Regression_Tests_Environment.postman_environment.json \
+              newman run /home/devopsagent/myagent/_work/2/postman/Regression_Tests.postman_collection.json \
+                     -e /home/devopsagent/myagent/_work/2/postman/Regression_Tests_Environment.postman_environment.json \
                      --reporters cli,junit \
                      --reporter-junit-export log/newman/regressionTestReport.xml \
                      --suppress-exit-code
             displayName: Regression Test (http://dummy.restapiexample.com)
           
           - bash: |
-              newman run /home/devopsagent/myagent/_work/1/postman/Validation_Tests_2.postman_collection.json \
-                        -e /home/devopsagent/myagent/_work/1/postman/Validation_Tests_Environment_2.postman_environment.json \
+              newman run /home/devopsagent/myagent/_work/2/postman/Validation_Tests_2.postman_collection.json \
+                        -e /home/devopsagent/myagent/_work/2/postman/Validation_Tests_Environment_2.postman_environment.json \
                         --reporters cli,junit \
                         --reporter-junit-export log/newman/validationTestReport_2.xml \
                         --suppress-exit-code
             displayName: Validation Test (https://jsonmonk.com/api/v1/users)
 
           - bash: |
-              newman run /home/devopsagent/myagent/_work/1/postman/Regression_Tests_2.postman_collection.json \
-                     -e /home/devopsagent/myagent/_work/1/postman/Regression_Tests_Environment_2.postman_environment.json \
+              newman run /home/devopsagent/myagent/_work/2/postman/Regression_Tests_2.postman_collection.json \
+                     -e /home/devopsagent/myagent/_work/2/postman/Regression_Tests_Environment_2.postman_environment.json \
                      --reporters cli,junit \
                      --reporter-junit-export log/newman/regressionTestReport_2.xml \
                      --suppress-exit-code
