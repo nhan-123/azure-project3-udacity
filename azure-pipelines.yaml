@@ -306,5 +306,42 @@ stages:
           #     mergeTestResults: true
           #     testRunTitle: 'Regression Test Reports (https://jsonmonk.com/api/v1/users)'
 
+          ####################################################################
+          #                       JMeter   Test                              #
+          ####################################################################
+          - download: current
+            displayName: Download JMeter
+            artifact: jmeter
+          - task: Bash@3
+            displayName: Install JMeter
+            inputs:
+              targetType: 'inline'
+              script: |
+                sudo apt-get install openjdk-11-jre-headless -y
+                wget https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-5.4.1.tgz -O jmeter.tgz
+                tar -xzvf jmeter.tgz
+
+                cd $(Pipeline.Workspace)/jmeter
+                unzip -o $(Pipeline.Workspace)/jmeter/$(Build.BuildId)-jmeter-tests -d .
+          
+          - task: Bash@3
+            displayName: Run JMeter tests
+            inputs:
+              targetType: 'inline'
+              script: |
+                apache-jmeter-5.4.1/bin/jmeter -n -t /home/devopsagent/myagent/_work/1/jmeter/endurance.jmx \
+                  -l /home/devopsagent/myagent/_work/1/jmeter/cicd-endurance-results.csv \
+                  -e -f -o /home/devopsagent/myagent/_work/1/jmeter/cicd-endurance-test-report.html \
+                  -j /home/devopsagent/myagent/_work/1/jmeter/cicd-endurance-test.log
+                
+                cd /home/devopsagent/myagent/_work/1/jmeter/
+                ls -la
+                echo "---------------------cicd-endurance-results.csv---------------------"
+                cat cicd-endurance-results.csv
+                echo "---------------------cicd-endurance-test-report.html---------------------"
+                cat cicd-endurance-test-report.html
+                echo "---------------------cicd-endurance-test.log---------------------"
+                cat cicd-endurance-test.log
+
 
   
