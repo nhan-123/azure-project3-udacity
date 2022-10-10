@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "e134a8ba-2542-4d98-90c7-d8bd75b9b1ae",
-		"name": "P3_Validation_Tests",
+		"_postman_id": "09e4619e-2967-40c3-8680-b3acca48e5a0",
+		"name": "Validation_Tests.postman_collection",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "13391030"
+		"_exporter_id": "16794720"
 	},
 	"item": [
 		{
@@ -87,14 +87,12 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{url}}/api/{{version}}/employee/2",
+					"raw": "{{url}}/{{api_path}}/2",
 					"host": [
 						"{{url}}"
 					],
 					"path": [
-						"api",
-						"{{version}}",
-						"employee",
+						"{{api_path}}",
 						"2"
 					]
 				},

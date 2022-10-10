@@ -132,27 +132,27 @@ stages:
       vmImage: 'ubuntu-latest'
       name: 'myAgentPool'
     steps:
-    - task: ArchiveFiles@2
-      displayName: 'Archive Selenium tests'
-      inputs:
-        rootFolderOrFile: '$(System.DefaultWorkingDirectory)/automatedtesting/selenium'
-        includeRootFolder: false
-        archiveType: 'zip'
-        archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId)-selenium-tests.zip'
-    - publish: $(Build.ArtifactStagingDirectory)/$(Build.BuildId)-selenium-tests.zip
-      displayName: 'Upload Selenium Tests'
-      artifact: selenium
-
     # - task: ArchiveFiles@2
-    #   displayName: 'Archive Postman tests'
+    #   displayName: 'Archive Selenium tests'
     #   inputs:
-    #     rootFolderOrFile: '$(System.DefaultWorkingDirectory)/automatedtesting/postman'
+    #     rootFolderOrFile: '$(System.DefaultWorkingDirectory)/automatedtesting/selenium'
     #     includeRootFolder: false
     #     archiveType: 'zip'
-    #     archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId)-postman-tests.zip'
-    # - publish: $(Build.ArtifactStagingDirectory)/$(Build.BuildId)-postman-tests.zip
-    #   displayName: 'Upload Postman Tests'
-    #   artifact: postman
+    #     archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId)-selenium-tests.zip'
+    # - publish: $(Build.ArtifactStagingDirectory)/$(Build.BuildId)-selenium-tests.zip
+    #   displayName: 'Upload Selenium Tests'
+    #   artifact: selenium
+
+    - task: ArchiveFiles@2
+      displayName: 'Archive Postman tests'
+      inputs:
+        rootFolderOrFile: '$(System.DefaultWorkingDirectory)/automatedtesting/postman'
+        includeRootFolder: false
+        archiveType: 'zip'
+        archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId)-postman-tests.zip'
+    - publish: $(Build.ArtifactStagingDirectory)/$(Build.BuildId)-postman-tests.zip
+      displayName: 'Upload Postman Tests'
+      artifact: postman
 
     # - task: ArchiveFiles@2
     #   displayName: 'Archive Jmeter tests'
@@ -180,40 +180,131 @@ stages:
       runOnce:
         deploy:
           steps:
-          - download: current
-            displayName: Download selenium
-            artifact: selenium 
+          # - download: current
+          #   displayName: Download selenium
+          #   artifact: selenium 
           ####################################################################
           #                       Selenium Test                              #
           ####################################################################
+          # - task: Bash@3
+          #   displayName: 'Install Selenium'
+          #   inputs:
+          #     targetType: 'inline'
+          #     script: |
+          #       #! /bin/bash
+                
+          #       sudo apt-get update -y
+          #       sudo apt-get install python3-pip -y
+          #       sudo apt-get install -y chromium-browser
+          #       sudo apt-get install -y chromium-chromedriver
+          #       sudo python3 -m pip install --upgrade pip
+          #       sudo pip3 install selenium==3.141.0 
+          #       export PATH=$PATH:/usr/lib/chromium-browser/
+          #       cd $(Pipeline.Workspace)/selenium
+          #       unzip -o $(Pipeline.Workspace)/selenium/$(Build.BuildId)-selenium-tests -d .
+          # - bash: |
+          #     cd $(Pipeline.Workspace)/s/automatedtesting/selenium
+          #     rm -rf seleniumtestrun.log
+          #     pwd
+          #     python3 login.py
+          #     ls -lah
+          #     sudo cat seleniumtestrun.log
+          #     sudo cp seleniumtestrun.log /var/log/selenium
+          #   displayName: Run Selenium Test-Suite
+          # - task: PublishPipelineArtifact@1
+          #   displayName: Publish Selenium Result logs
+          #   inputs:
+          #     targetPath: '$(Pipeline.Workspace)/selenium/seleniumtestrun.log'
+          #     artifactName: 'SeleniumTestResult'
+          # ####################################################################
+          # #                       Postman  Test                              #
+          # ####################################################################
+          - download: current
+            displayName: Download postman
+            artifact: postman
+          - task: NodeTool@0
+            displayName: Install Node v16.X
+            inputs:
+              versionSpec: '16.x'
           - task: Bash@3
-            displayName: 'Install Selenium'
+            displayName: 'Install newman'
             inputs:
               targetType: 'inline'
               script: |
-                #! /bin/bash
-                
-                sudo apt-get update -y
-                sudo apt-get install python3-pip -y
-                sudo apt-get install -y chromium-browser
-                sudo apt-get install -y chromium-chromedriver
-                sudo python3 -m pip install --upgrade pip
-                sudo pip3 install selenium==3.141.0 
-                export PATH=$PATH:/usr/lib/chromium-browser/
-                cd $(Pipeline.Workspace)/selenium
-                unzip -o $(Pipeline.Workspace)/selenium/$(Build.BuildId)-selenium-tests -d .
+                sudo apt install nodejs npm -y
+                nodejs --version
+                npm install -g newman
+                cd $(Pipeline.Workspace)/postman
+                unzip -o $(Pipeline.Workspace)/postman/$(Build.BuildId)-postman-tests -d .
           - bash: |
-              cd $(Pipeline.Workspace)/s/automatedtesting/selenium
-              rm -rf seleniumtestrun.log
-              pwd
-              python3 login.py
-              ls -lah
-              sudo cat seleniumtestrun.log
-              sudo cp seleniumtestrun.log /var/log/selenium
-            displayName: Run Selenium Test-Suite
+              newman run /home/devopsagent/myagent/_work/1/postman/Validation_Tests.postman_collection.json \
+                        -e /home/devopsagent/myagent/_work/1/postman/Validation_Tests_Environment.postman_environment.json \
+                        --reporters cli,junit \
+                        --reporter-junit-export log/newman/validationTestReport.xml \
+                        --suppress-exit-code
+            displayName: Validation Test (http://dummy.restapiexample.com)
+
+          - bash: |
+              newman run /home/devopsagent/myagent/_work/1/postman/Regression_Tests.postman_collection.json \
+                     -e /home/devopsagent/myagent/_work/1/postman/Regression_Tests_Environment.postman_environment.json \
+                     --reporters cli,junit \
+                     --reporter-junit-export log/newman/regressionTestReport.xml \
+                     --suppress-exit-code
+            displayName: Regression Test (http://dummy.restapiexample.com)
+          
+          - bash: |
+              newman run /home/devopsagent/myagent/_work/1/postman/Validation_Tests_2.postman_collection.json \
+                        -e /home/devopsagent/myagent/_work/1/postman/Validation_Tests_Environment_2.postman_environment.json \
+                        --reporters cli,junit \
+                        --reporter-junit-export log/newman/validationTestReport_2.xml \
+                        --suppress-exit-code
+            displayName: Validation Test (https://jsonmonk.com/api/v1/users)
+
+          - bash: |
+              newman run /home/devopsagent/myagent/_work/1/postman/Regression_Tests_2.postman_collection.json \
+                     -e /home/devopsagent/myagent/_work/1/postman/Regression_Tests_Environment_2.postman_environment.json \
+                     --reporters cli,junit \
+                     --reporter-junit-export log/newman/regressionTestReport_2.xml \
+                     --suppress-exit-code
+            displayName: Regression Test (https://jsonmonk.com/api/v1/users)
+
           - task: PublishPipelineArtifact@1
-            displayName: Publish Selenium Result logs
+            displayName: Publish Regression and Validation Test Reports as Artifacts
             inputs:
-              targetPath: '$(Pipeline.Workspace)/selenium/seleniumtestrun.log'
-              artifactName: 'SeleniumTestResult'
+              targetPath: '$(System.DefaultWorkingDirectory)/log/newman'
+              artifactName: 'drop-integration-test'
+          - task: PublishTestResults@2
+            displayName: Publish Validation Test Reports (http://dummy.restapiexample.com)
+            condition: always()
+            inputs:
+              testResultsFormat: 'JUnit'
+              testResultsFiles: '$(System.DefaultWorkingDirectory)/log/newman/validationTestReport.xml'
+              mergeTestResults: true
+              testRunTitle: 'Validation Test Reports (http://dummy.restapiexample.com)'
+          - task: PublishTestResults@2
+            displayName: Publish Regression Test Reports (http://dummy.restapiexample.com)
+            condition: always()
+            inputs:
+              testResultsFormat: 'JUnit'
+              testResultsFiles: '$(System.DefaultWorkingDirectory)/log/newman/regressionTestReport.xml'
+              mergeTestResults: true
+              testRunTitle: 'Regression Test Reports (http://dummy.restapiexample.com)'
+          - task: PublishTestResults@2
+            displayName: Publish Validation Test Reports (https://jsonmonk.com/api/v1/users)
+            condition: always()
+            inputs:
+              testResultsFormat: 'JUnit'
+              testResultsFiles: '$(System.DefaultWorkingDirectory)/log/newman/validationTestReport_2.xml'
+              mergeTestResults: true
+              testRunTitle: 'Validation Test Reports (https://jsonmonk.com/api/v1/users)'
+          - task: PublishTestResults@2
+            displayName: Publish Regression Test Reports (https://jsonmonk.com/api/v1/users)
+            condition: always()
+            inputs:
+              testResultsFormat: 'JUnit'
+              testResultsFiles: '$(System.DefaultWorkingDirectory)/log/newman/regressionTestReport_2.xml'
+              mergeTestResults: true
+              testRunTitle: 'Regression Test Reports (https://jsonmonk.com/api/v1/users)'
+
+
   

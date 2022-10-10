@@ -1,15 +1,15 @@
 # Azure GUIDS
 variable "subscription_id" {
     description = "Subcription id"
-    default = "9264ae45-f6c6-47e0-9199-fa1b3e14415e" 
+    default = "88062415-5d83-43de-899d-8569bf79782b" 
 }
 variable "client_id" {
     description = "Application id"
-    default = "b403f483-961a-4a41-a933-1a6372a0b55a"
+    default = "9dcb2406-83d9-4e32-b49e-b1ab508edb46"
 }
 variable "client_secret" {
     description = "Secret key"
-    default = "nM48Q~l099k0Z_CGs-oUmihbFGXgC8LNlcvctaeY"
+    default = "EXE8Q~xsGe6uuBaGz.CjyY7l4So1lgaRtR-eZcyo"
 } 
 variable "tenant_id" {
     description = "Tenent id"

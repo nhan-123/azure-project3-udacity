@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "95f75860-a7fc-47a6-9750-9a5716ba702f",
-		"name": "P3_Regression_Tests_2",
+		"_postman_id": "b55e80e2-ce5f-488c-8e55-44ceda127d7b",
+		"name": "Validation_Tests_2.postman_collection",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "13391030"
+		"_exporter_id": "16794720"
 	},
 	"item": [
 		{
@@ -44,7 +44,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"first_name\": \"Le\",\r\n    \"last_name\": \"Nhan\",\r\n    \"email\": \"test1@example.com\",\r\n    \"mobile_no\": \"123456789\",\r\n    \"password\": \"password1\"\r\n}",
+					"raw": "{\r\n    \"first_name\": \"{{first_name}}\",\r\n    \"last_name\": \"{{last_name}}\",\r\n    \"email\": \"{{email}}\",\r\n    \"mobile_no\": \"{{mobile_no}}\",\r\n    \"password\": \"{{password}}\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -52,16 +52,9 @@
 					}
 				},
 				"url": {
-					"raw": "https://jsonmonk.com/api/v1/users",
-					"protocol": "https",
+					"raw": "{{url}}",
 					"host": [
-						"jsonmonk",
-						"com"
-					],
-					"path": [
-						"api",
-						"v1",
-						"users"
+						"{{url}}"
 					]
 				}
 			},
