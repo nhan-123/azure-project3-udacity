@@ -198,10 +198,7 @@ stages:
                 sudo apt-get install -y chromium-browser
                 sudo apt-get install -y chromium-chromedriver
                 sudo python3 -m pip install --upgrade pip
-                sudo pip3 install selenium==3.141.0
-
-                selenium==3.141.0
-                sudo pip3 install 
+                sudo pip3 install selenium==3.141.0 
                 export PATH=$PATH:/usr/lib/chromium-browser/
                 cd $(Pipeline.Workspace)/selenium
                 unzip -o $(Pipeline.Workspace)/selenium/$(Build.BuildId)-selenium-tests -d .
@@ -211,22 +208,12 @@ stages:
               pwd
               python3 login.py
               ls -lah
-              python3 publishlog.py selenium-result.log $(LOG-WORKSPACE) $(LOG-KEY) > publish.log 
               sudo cat seleniumtestrun.log
               sudo cp seleniumtestrun.log /var/log/selenium
             displayName: Run Selenium Test-Suite
           - task: PublishPipelineArtifact@1
             displayName: Publish Selenium Result logs
             inputs:
-              targetPath: '$(Pipeline.Workspace)/selenium/selenium-result.log'
+              targetPath: '$(Pipeline.Workspace)/selenium/seleniumtestrun.log'
               artifactName: 'SeleniumTestResult'
-          - task: Bash@3
-            displayName: 'Run Selenium Tests'
-            inputs:
-              targetType: 'inline'
-              script: |
-                python3.7 /home/devopsagent/myagent/_work/1/selenium/login.py > /home/devopsagent/myagent/_work/1/selenium/seleniumtestrun.log
-                sudo python3 /home/devopsagent/myagent/_work/1/selenium/login.py > seleniumtestrun.log
-                sudo cp /home/devopsagent/myagent/_work/1/selenium/seleniumtestrun.log /var/log
-                echo "copy log ---------------------------"
-                sudo cat /var/log/seleniumtestrun.log
+  
