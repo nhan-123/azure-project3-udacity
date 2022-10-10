@@ -180,9 +180,9 @@ stages:
       runOnce:
         deploy:
           steps:
-          # - download: current
-          #   displayName: Download selenium
-          #   artifact: selenium 
+          - download: current
+            displayName: Download selenium
+            artifact: selenium 
           ####################################################################
           #                       Selenium Test                              #
           ####################################################################
